@@ -17,7 +17,7 @@ public class NewsService implements INewsService{
 	
 	@Override
 	public List<News> list(String title) { 
-		if (title.isBlank()) {
+		if (title.isEmpty()) {
 			return (List<News>) data.findAll();
 		}
 		return (List<News>) data.findByTitle(title);		

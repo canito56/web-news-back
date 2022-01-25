@@ -2,10 +2,12 @@ package com.jb.news.controller;
 
 import java.net.URI;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.jb.news.model.Message;
@@ -27,10 +30,19 @@ import com.jb.news.service.NewsService;
 public class NewsController {
 	@Autowired
 	private NewsService serviceNews;
-	
+
+/*
+	// Con esto no anda!!!
+	@GetMapping(value="/list/{title}", produces=MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<News>> list(@PathVariable("title") String title) {
+		title = title == null || title.length() == 0 || title.isEmpty()? "": title;
+		List<News> lnews = serviceNews.list(title);		
+		return new ResponseEntity<List<News>>(lnews, HttpStatus.OK);
+	}
+*/	
+	// Con esto anda, hay q poner /news/list?title=messi por ej, o no poner param:
 	@GetMapping("/list")
-	public ResponseEntity<List<News>> list() {
-		String title = " ";
+	public ResponseEntity<List<News>> list(@RequestParam(value="title", defaultValue="") String title) {
 		List<News> lnews = serviceNews.list(title);		
 		return new ResponseEntity<List<News>>(lnews, HttpStatus.OK);
 	}
@@ -45,9 +57,9 @@ public class NewsController {
 
 	@PostMapping("/add")
 	public ResponseEntity<?> save(@RequestBody News n) {
-		if (n.getTitle().isBlank()) 
+		if (n.getTitle() == "") 
 			return new ResponseEntity<>(new Message("Must inform title"), HttpStatus.BAD_REQUEST);
-		if (n.getSnews().isBlank()) 
+		if (n.getSnews() == "") 
 			return new ResponseEntity<>(new Message("Must inform news"), HttpStatus.BAD_REQUEST);
 		if (!serviceNews.list(n.getTitle()).isEmpty()) {
 			return new ResponseEntity<>(new Message("The title " + n.getTitle() +  " already exists"), HttpStatus.BAD_REQUEST);
@@ -59,7 +71,7 @@ public class NewsController {
 	
 	@PutMapping("/update/{id}")
 	public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody News n) {
-		if (n.getSnews().isBlank()) 
+		if (n.getSnews() == "") 
 			return new ResponseEntity<>(new Message("Must inform news"), HttpStatus.BAD_REQUEST);
 		News un = serviceNews.getNews(id);
 		if (un == null)
