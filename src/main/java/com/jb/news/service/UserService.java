@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jb.news.interfaceService.IUserService;
@@ -12,23 +11,23 @@ import com.jb.news.interfaces.IUserRepository;
 import com.jb.news.model.User;
 
 @Service
-public class UserService implements IUserService{
+public class UserService implements IUserService {
 	
-	@Autowired
 	private IUserRepository data;
 	private static String salt = "vamos river todavia CARAJO boquita puto!";
 	
-	@Override
+	public UserService(IUserRepository data) {
+		this.data = data;
+	}
+	
 	public User getUser(String u) {
 		return data.findBySuser(u);
 	}
 	
-	@Override
 	public void save(User u) {
 		data.save(u);
 	}
 	
-	@Override
 	public String getSecurePassword(String passwordToHash) {		
 		String generatedPassword = null;
 	    try {MessageDigest md = MessageDigest.getInstance("SHA-512");
